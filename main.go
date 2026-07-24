@@ -12,9 +12,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"cloak/internal/cloaker"
-	"cloak/internal/config"
-	"cloak/internal/handler"
+	"cloak/internal/app"
 	"cloak/internal/ja3"
 )
 
@@ -25,21 +23,14 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Printf("cloak starting, config=%s", *configPath)
 
-	cfg, err := config.Load(*configPath)
+	h, cfg, err := app.New(*configPath)
 	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+		log.Fatalf("failed to initialize app: %v", err)
 	}
-
-	c, err := cloaker.New(cfg)
-	if err != nil {
-		log.Fatalf("failed to create cloaker: %v", err)
-	}
-
-	h := handler.NewHandler(c)
 
 	addr := fmt.Sprintf("%s:%d", cfg.Server.Host, cfg.Server.Port)
 	srv := &http.Server{
-		Addr:    addr,
+		Addr: addr,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// JA3 is now read from context by rules, no need to set headers
 			h.ServeHTTP(w, r)

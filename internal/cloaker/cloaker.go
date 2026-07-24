@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"cloak/internal/config"
@@ -101,11 +102,11 @@ func (c *Cloaker) CountryCheck(ip net.IP) string {
 }
 
 func (c *Cloaker) renderPages() error {
-	privacyTmpl, err := loadTemplate("privacy", "templates/privacy.gohtml")
+	privacyTmpl, err := loadTemplate("privacy", c.templatePath("privacy.gohtml"))
 	if err != nil {
 		return fmt.Errorf("privacy template: %w", err)
 	}
-	termsTmpl, err := loadTemplate("terms", "templates/terms.gohtml")
+	termsTmpl, err := loadTemplate("terms", c.templatePath("terms.gohtml"))
 	if err != nil {
 		return fmt.Errorf("terms template: %w", err)
 	}
@@ -175,6 +176,15 @@ func (c *Cloaker) renderPages() error {
 
 	c.challengePage = []byte(challengePage)
 	return nil
+}
+
+func (c *Cloaker) templatePath(name string) string {
+	for _, route := range c.cfg.Routes {
+		if route.Template != "" {
+			return filepath.Join(filepath.Dir(route.Template), name)
+		}
+	}
+	return filepath.Join("templates", name)
 }
 
 func loadTemplate(name, path string) (*template.Template, error) {
