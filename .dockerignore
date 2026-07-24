@@ -1,0 +1,15 @@
+.git
+.DS_Store
+Dockerfile
+fly.toml
+README-FLY.md
+
+cloak.exe
+*.exe
+*.tmp
+!data/BIT4BF5.tmp
+*.log
+clog.txt
+cerr.txt
+dc1.txt
+dc2.txt

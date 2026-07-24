@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{.title}}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#e8ebe4;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.card{width:100%;max-width:400px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.1);margin:24px}
+.card .banner{height:120px;background:linear-gradient(135deg,{{if .banner_color1}}{{.banner_color1}}{{else}}#075e54{{end}},{{if .banner_color2}}{{.banner_color2}}{{else}}#128c7e{{end}})}
+.card .avatar{width:80px;height:80px;border-radius:50%;margin:-40px auto 0;border:4px solid #fff;background-size:cover;background-position:center;{{if .avatar_url}}background-image:url({{.avatar_url}}){{else}}background-color:#888{{end}}}
+.card .content{padding:24px;text-align:center}
+.card h1{font-size:22px;margin-bottom:4px}
+.card .bio{color:#667781;font-size:14px;margin-bottom:16px;line-height:1.5}
+.card .divider{height:1px;background:#e9edef;margin:16px 0}
+.card .info-row{display:flex;align-items:center;gap:12px;padding:10px 0;color:#3b4a54;font-size:14px}
+.card .info-row .label{color:#667781;width:80px;text-align:right}
+.card .cta{margin-top:20px}
+.card .cta a{display:inline-block;background:{{if .cta_color}}{{.cta_color}}{{else}}#25d366{{end}};color:#fff;padding:12px 32px;border-radius:24px;text-decoration:none;font-size:16px;font-weight:600;transition:background .2s}
+.card .cta a:hover{filter:brightness(.9)}
+.card .links{margin-top:12px;display:flex;gap:16px;justify-content:center}
+.card .links a{color:#667781;text-decoration:none;font-size:13px}
+.card .footer-text{color:#aaa;font-size:12px;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="banner"></div>
+  <div class="avatar"></div>
+  <div class="content">
+    <h1>{{if .display_name}}{{.display_name}}{{else}}Support Team{{end}}</h1>
+    <p class="bio">{{if .bio}}{{.bio}}{{else}}We're here to help! Reach out anytime.{{end}}</p>
+    <div class="divider"></div>
+    {{range .properties}}
+    <div class="info-row"><span class="label">{{.label}}</span><span>{{.value}}</span></div>
+    {{end}}
+    <div class="cta">
+      <a href="{{if .chat_url}}{{.chat_url}}{{else}}/{{end}}">{{if .cta_text}}{{.cta_text}}{{else}}Start Chat{{end}}</a>
+    </div>
+    <div class="links">
+      {{if .privacy_url}}<a href="{{.privacy_url}}">Privacy</a>{{end}}
+    </div>
+    <p class="footer-text">{{if .footer_text}}{{.footer_text}}{{else}}End-to-end encrypted{{end}}</p>
+  </div>
+</div>
+</body>
+</html>

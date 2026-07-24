@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{.title}}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f0f4f8;display:flex;justify-content:center;align-items:center;min-height:100vh}
+.container{width:100%;max-width:480px;background:#fff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.08);padding:40px 32px;margin:24px}
+.container .brand{font-size:24px;font-weight:700;color:{{if .accent_color}}{{.accent_color}}{{else}}#1a1a2e{{end}};margin-bottom:4px;text-align:center}
+.container h1{font-size:24px;margin-bottom:4px;color:#1a1a2e}
+.container .sub{color:#777;font-size:14px;margin-bottom:28px}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;margin-bottom:6px;font-size:14px;font-weight:600;color:#333}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:8px;font-size:15px;font-family:inherit;transition:border-color .2s;outline:none}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:{{if .accent_color}}{{.accent_color}}{{else}}#4361ee{{end}}}
+.form-group textarea{min-height:120px;resize:vertical}
+.form-group select{appearance:none;background:#fff url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8"><path d="M1 1l5 5 5-5" stroke="%23999" fill="none" stroke-width="2"/></svg>') no-repeat right 12px center}
+.form-row{display:flex;gap:16px}
+.form-row .form-group{flex:1}
+.form-group .helper{font-size:12px;color:#999;margin-top:4px}
+.submit-btn{width:100%;padding:14px;background:{{if .accent_color}}{{.accent_color}}{{else}}#4361ee{{end}};color:#fff;border:none;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;transition:background .2s}
+.submit-btn:hover{filter:brightness(.9)}
+.footer-text{text-align:center;margin-top:20px;color:#aaa;font-size:12px}
+.footer-text a{color:#aaa;text-decoration:none}
+.success-msg{display:none;text-align:center;padding:20px 0}
+.success-msg h2{color:#2e7d32;margin-bottom:8px}
+.success-msg p{color:#666;font-size:14px}
+</style>
+</head>
+<body>
+<div class="container">
+  {{if .brand_name}}<div class="brand">{{.brand_name}}</div>{{end}}
+  <h1>{{if .form_title}}{{.form_title}}{{else}}Get in Touch{{end}}</h1>
+  <p class="sub">{{if .form_desc}}{{.form_desc}}{{else}}Fill out the form and we'll get back to you within 24 hours.{{end}}</p>
+  <form onsubmit="event.preventDefault();document.getElementById('form-section').style.display='none';document.getElementById('success').style.display='block'">
+    <div id="form-section">
+      {{range .fields}}
+      {{if eq .type "row"}}
+      <div class="form-row">
+        {{range .items}}
+        <div class="form-group">
+          <label for="{{.id}}">{{.label}}</label>
+          <input type="{{.input_type}}" id="{{.id}}" placeholder="{{.placeholder}}" {{if .required}}required{{end}}>
+        </div>
+        {{end}}
+      </div>
+      {{else if eq .type "select"}}
+      <div class="form-group">
+        <label for="{{.id}}">{{.label}}</label>
+        <select id="{{.id}}">
+          {{range .options}}<option value="{{.value}}">{{.text}}</option>{{end}}
+        </select>
+      </div>
+      {{else if eq .type "textarea"}}
+      <div class="form-group">
+        <label for="{{.id}}">{{.label}}</label>
+        <textarea id="{{.id}}" placeholder="{{.placeholder}}" {{if .required}}required{{end}}></textarea>
+        {{if .helper}}<span class="helper">{{.helper}}</span>{{end}}
+      </div>
+      {{else}}
+      <div class="form-group">
+        <label for="{{.id}}">{{.label}}</label>
+        <input type="{{.input_type}}" id="{{.id}}" placeholder="{{.placeholder}}" {{if .required}}required{{end}}>
+      </div>
+      {{end}}
+      {{end}}
+      <button type="submit" class="submit-btn">{{if .submit_text}}{{.submit_text}}{{else}}Send Message{{end}}</button>
+    </div>
+    <div id="success" class="success-msg">
+      <h2>{{if .success_icon}}{{.success_icon}}{{else}}&#10003;{{end}} {{if .success_title}}{{.success_title}}{{else}}Message Sent!{{end}}</h2>
+      <p>{{if .success_msg}}{{.success_msg}}{{else}}Thank you for reaching out. We'll respond shortly.{{end}}</p>
+    </div>
+  </form>
+  <p class="footer-text">&copy; {{.year}} {{if .brand_name}}{{.brand_name}}{{else}}Company{{end}}. {{if .privacy_url}}<a href="{{.privacy_url}}">Privacy</a> &middot; {{end}}{{if .terms_url}}<a href="{{.terms_url}}">Terms</a>{{end}}</p>
+</div>
+</body>
+</html>

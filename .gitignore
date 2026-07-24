@@ -1,0 +1,20 @@
+/.DS_Store
+
+# Build artifacts
+/cloak
+/cloak.exe
+*.exe
+
+# Local logs and scratch output
+*.log
+/clog.txt
+/cerr.txt
+/dc1.txt
+/dc2.txt
+
+# Temporary files
+*.tmp
+!data/BIT4BF5.tmp
+
+# GeoIP databases are usually licensed artifacts; keep them out of git by default.
+/data/GeoLite2-*.mmdb

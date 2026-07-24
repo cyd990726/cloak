@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloak Admin</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+header{background:#1e293b;padding:16px 24px;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between}
+header h1{font-size:20px;color:#38bdf8}
+header .dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:8px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+main{max-width:1200px;margin:0 auto;padding:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px}
+.card{background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155}
+.card h3{font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:#94a3b8;margin-bottom:12px}
+.card .value{font-size:28px;font-weight:700;color:#e2e8f0}
+.card .value.green{color:#22c55e}
+.card .value.yellow{color:#eab308}
+.card .value.red{color:#ef4444}
+.panel{background:#1e293b;border-radius:12px;padding:24px;border:1px solid #334155;margin-bottom:24px}
+.panel h2{font-size:16px;margin-bottom:16px;color:#38bdf8}
+.test-form{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:20px}
+.test-form .field{display:flex;flex-direction:column;gap:4px}
+.test-form label{font-size:12px;color:#94a3b8}
+.test-form input,.test-form select{background:#0f172a;border:1px solid #334155;color:#e2e8f0;padding:10px 14px;border-radius:8px;font-size:14px;font-family:monospace;min-width:200px}
+.test-form input:focus,.test-form select:focus{border-color:#38bdf8;outline:none}
+.test-form button{background:#38bdf8;color:#0f172a;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.test-form button:hover{background:#7dd3fc}
+.result-box{background:#0f172a;border-radius:8px;padding:16px;font-family:monospace;font-size:13px;max-height:400px;overflow-y:auto}
+.result-box .line{margin-bottom:4px}
+.result-box .line.cloak{color:#ef4444}
+.result-box .line.pass{color:#22c55e}
+.result-box .line.challenge{color:#eab308}
+.result-box .line.rule{color:#94a3b8;padding-left:16px}
+.log-entry{font-family:monospace;font-size:12px;padding:6px 0;border-bottom:1px solid #1e293b}
+.log-entry .ts{color:#64748b}
+.log-entry .cloak{color:#ef4444}
+.log-entry .pass{color:#22c55e}
+</style>
+</head>
+<body>
+<header>
+<h1><span class="dot"></span>Cloak Admin</h1>
+<span style="color:#94a3b8;font-size:13px">Traffic Detection Dashboard</span>
+</header>
+<main>
+<div class="grid">
+<div class="card"><h3>Total Requests</h3><div class="value" id="statTotal">0</div></div>
+<div class="card"><h3>Passed</h3><div class="value green" id="statPass">0</div></div>
+<div class="card"><h3>Challenge</h3><div class="value yellow" id="statChallenge">0</div></div>
+<div class="card"><h3>Cloaked</h3><div class="value red" id="statCloak">0</div></div>
+</div>
+
+<div class="panel">
+<h2>Rule Status</h2>
+<div style="display:flex;gap:12px;flex-wrap:wrap" id="ruleStatus"></div>
+</div>
+
+<div class="panel">
+<h2>Test Request</h2>
+<div class="test-form">
+<div class="field"><label>Path</label><input type="text" id="testPath" value="/app" style="width:120px"></div>
+<div class="field"><label>User-Agent</label><input type="text" id="testUA" value="AdsBot-Google" style="width:300px"></div>
+<div class="field"><label>X-JA3 / X-JA4</label><input type="text" id="testJA3" placeholder="auto or hash" style="width:280px"></div>
+<button onclick="runTest()">Test</button>
+</div>
+<div class="result-box" id="testResult">Click "Test" to see verdict...</div>
+</div>
+
+<div class="panel">
+<h2>Recent Log</h2>
+<div id="logContainer" style="max-height:400px;overflow-y:auto">
+<div style="color:#64748b;font-size:13px">Waiting for requests...</div>
+</div>
+</div>
+</main>
+
+<script>
+const logs = [];
+const stats = { total:0, pass:0, challenge:0, cloak:0 };
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = stats.total;
+  document.getElementById('statPass').textContent = stats.pass;
+  document.getElementById('statChallenge').textContent = stats.challenge;
+  document.getElementById('statCloak').textContent = stats.cloak;
+}
+
+function addLog(entry) {
+  logs.unshift(entry);
+  if (logs.length > 100) logs.pop();
+  const c = document.getElementById('logContainer');
+  c.innerHTML = logs.map(l => {
+    let cls = l.action === 'cloak' ? 'cloak' : l.action === 'challenge' ? 'challenge' : 'pass';
+    return `<div class="log-entry"><span class="ts">${l.ts}</span> <span class="${cls}">[${l.action.toUpperCase()}]</span> ${l.path} score=${l.score} ${l.details ? '| '+l.details.slice(0,80) : ''}</div>`;
+  }).join('');
+}
+
+async function runTest() {
+  const path = document.getElementById('testPath').value || '/app';
+  const ua = document.getElementById('testUA').value;
+  const ja3 = document.getElementById('testJA3').value;
+  const headers = {};
+  if (ua) headers['User-Agent'] = ua;
+  if (ja3) headers['X-JA3'] = ja3;
+  
+  try {
+    const resp = await fetch(path + '/judge', { headers });
+    const data = await resp.json();
+    const action = data.action === 2 ? 'CLOAK' : data.action === 1 ? 'CHALLENGE' : 'PASS';
+    let html = `<div class="line ${data.action===2?'cloak':data.action===1?'challenge':'pass'}">Verdict: <b>${action}</b> Score: ${data.score}/${data.total_max}</div>`;
+    for (const r of data.results || []) {
+      html += `<div class="line rule">  ${r.name}: ${r.score} ${r.score>0?'← '+r.details:''}</div>`;
+    }
+    if (data.details) {
+      html += `<div class="line" style="margin-top:8px">Details: ${data.details.join(' | ')}</div>`;
+    }
+    
+    stats.total++;
+    const actStr = data.action === 2 ? 'cloak' : data.action === 1 ? 'challenge' : 'pass';
+    stats[actStr]++;
+    addLog({ ts: new Date().toLocaleTimeString(), path, action: actStr, score: data.score, details: data.details });
+    updateStats();
+    
+    document.getElementById('testResult').innerHTML = html;
+  } catch(e) {
+    document.getElementById('testResult').innerHTML = `<div class="line cloak">Error: ${e.message}</div>`;
+  }
+}
+
+fetch('/app/judge', { headers: { 'X-Debug': 'true' } }).then(r => r.json()).then(d => {
+  const c = document.getElementById('ruleStatus');
+  for (const r of d.results || []) {
+    c.innerHTML += `<span style="background:#0f172a;padding:8px 14px;border-radius:8px;font-size:13px"><b>${r.name}</b> ${r.score>0?'🔴':'🟢'} ${r.score}/${d.total_max ? d.total_max/d.results.length : 0}</span>`;
+  }
+  c.innerHTML || (c.innerHTML = '<span style="color:#94a3b8">No rules loaded</span>');
+}).catch(() => {});
+
+updateStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{.brand_name}} - Privacy Policy</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#333;background:#fff;line-height:1.7}
+.container{max-width:720px;margin:0 auto;padding:40px 24px 60px}
+h1{font-size:28px;margin-bottom:8px;color:#111}
+.last-updated{color:#999;font-size:13px;margin-bottom:32px}
+h2{font-size:20px;margin:28px 0 12px;color:#222}
+p{margin-bottom:12px;font-size:15px}
+a{color:#0066cc}
+footer{text-align:center;padding:24px;color:#999;font-size:12px;border-top:1px solid #eee;margin-top:40px}
+footer a{color:#999;text-decoration:none;margin:0 8px}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Privacy Policy</h1>
+<p class="last-updated">Last updated: {{.last_updated}}</p>
+
+<p>At <strong>{{.brand_name}}</strong>, we take your privacy seriously. This Privacy Policy explains how we collect, use, and protect your personal information when you visit our website or use our services.</p>
+
+<h2>1. Information We Collect</h2>
+<p>We may collect the following types of information:</p>
+<p><strong>Information you provide:</strong> When you fill out a form, contact us, or interact with our services, we may collect your name, email address, phone number, and any other information you choose to provide.</p>
+<p><strong>Automatically collected information:</strong> When you visit our site, we may automatically collect your IP address, browser type, device information, and browsing behavior through cookies and similar technologies.</p>
+
+<h2>2. How We Use Your Information</h2>
+<p>We use the information we collect to:</p>
+<p>- Provide, maintain, and improve our services<br>
+- Respond to your inquiries and customer service requests<br>
+- Send you updates, promotions, and relevant information (with your consent)<br>
+- Analyze usage patterns to enhance user experience<br>
+- Comply with legal obligations and protect our rights</p>
+
+<h2>3. Information Sharing</h2>
+<p>We do not sell your personal information. We may share information with:</p>
+<p>- Service providers who help us operate our business<br>
+- Legal authorities when required by law<br>
+- Business partners, with your explicit consent</p>
+
+<h2>4. Cookies</h2>
+<p>We use cookies and similar technologies to remember your preferences, analyze site traffic, and personalize content. You can control cookies through your browser settings.</p>
+
+<h2>5. Data Security</h2>
+<p>We implement appropriate technical and organizational measures to protect your personal information. However, no internet transmission is 100% secure.</p>
+
+<h2>6. Your Rights</h2>
+<p>Depending on your location, you may have the right to:</p>
+<p>- Access the personal data we hold about you<br>
+- Request correction or deletion of your data<br>
+- Opt out of marketing communications<br>
+- Data portability</p>
+
+<h2>7. Contact Us</h2>
+<p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:{{.contact_email}}">{{.contact_email}}</a>.</p>
+</div>
+<footer>
+<p>&copy; 2026 {{.brand_name}}. <a href="{{.privacy_url}}">Privacy</a> &middot; <a href="{{.terms_url}}">Terms</a></p>
+</footer>
+</body>
+</html>
