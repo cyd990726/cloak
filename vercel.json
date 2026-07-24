@@ -2,11 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.go": {
-      "includeFiles": [
-        "config.yaml",
-        "templates/**",
-        "data/**"
-      ]
+      "includeFiles": "{config.yaml,templates/**,data/**}"
     }
   },
   "rewrites": [
