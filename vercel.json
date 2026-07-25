@@ -1,14 +1,9 @@
 {
   "version": 2,
-  "functions": {
-    "api/index.go": {
-      "includeFiles": "{config.yaml,templates/**,data/**}"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/index.go?__cloak_path=/$1"
+      "destination": "api/index.go?__cloak_path=/$1"
     }
   ]
 }

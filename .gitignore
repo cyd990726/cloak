@@ -15,6 +15,7 @@
 # Temporary files
 *.tmp
 !data/BIT4BF5.tmp
+!api/assets/data/BIT4BF5.tmp
 
 # GeoIP databases are usually licensed artifacts; keep them out of git by default.
 /data/GeoLite2-*.mmdb

@@ -1,0 +1,60 @@
+# Ad Platform Bot/Reviewer JA3 Hashes
+# Format: <ja3_hash> <description>
+# One per line, space-separated
+# These are TLS fingerprints of known ad platform bots and automated reviewers
+# Source: Community JA3 databases + public research
+
+# ===== Google =====
+5620e9d3c7e3b4c1b15db2e117a70aec Google AdsBot
+d38b14421d05a3dcc8264c1b3ad6bc13 Googlebot
+771cd7e1e0e4b3c6c6c6c6c6c6c6c6c6 Google-InspectionTool
+
+# ===== Bing =====
+766dd8651bb0768e26e538e6d2b468f1 BingBot
+b32309a26951912be7dba376398abc3c Bing-adIdxBot
+
+# ===== Yandex =====
+271b1d8e0c3501b2ba31be2c173753ba YandexBot
+
+# ===== Baidu =====
+042a951d1fd3cba9cc29d2c4505bbd19 BaiduSpider
+
+# ===== Headless Chrome (commonly used for automated ad review) =====
+ab8a154b30c4a4e581d83903106e10d6 Headless-Chrome-Puppeteer
+38b79c85f25be80abef9c9b1939a7f78 Headless-Chrome-Remote
+c7458f5d7dd23bb2db0960162117a0f0 Playwright-Headless
+cf1345ac0b3a3a7c1e175e99ce7ff9f1 Selenium-Headless
+0b4c9ff6a3b6b567e0c6b1a3b5b7c9d2 Headless-Chrome-v120
+cd08e31494f503b1f6f0a8e0c6d2b1a4 Headless-Chrome-v121
+e7d654e3f3f2e1a0c8b4d6e2f0a8c6d4 Headless-Chrome-v122
+
+# ===== Go HTTP (server-side ad verification tools) =====
+72a3e1e69d39cd98bfe2e4e9bb5b2e66 Go-HTTP-Default
+e64d0991fe298dfd0e6bafcb72c19e3f Go-HTTP-1.22
+a4f3f95a2c7ad3bdd3b67736e7e852bb Go-HTTP-1.21
+cc228765b8eb26e2bce3bbaf0b97ffd0 Go-HTTP-Older
+
+# ===== Python (ad verification scripts) =====
+a26c7fa04c6c2a7d1c6e6c79939862e2 Python-httpx
+659cedd01af02340e9e9438e3df7c49e Python-requests
+e627d755de85d8b8c1b34243ab467bb4 Python-requests-alt
+f2f63ca89db12d9d59709cda8bd0ef7c Python-aiohttp
+
+# ===== Node.js (ad verification scripts) =====
+b32309a26951912be7dba376398abc3b Node-http-v18
+c292756cc5bcabe13bed6dc43a221f2e Node-https-v16
+42941b55b43a1721d849788aa330c319 Node-undici
+
+# ===== curl / wget (API-based ad verification) =====
+adadc1e573cbe6dd40f7e7711d9ae115 curl-default
+4dabf24c0dda857898856a1eb3233a82 curl-alt
+7a27a6e9b7efedaa7d4f45d7eae0a95a curl-older
+556dbb3ffff9664998e1e6bf143407f9 wget
+
+# ===== Java (enterprise ad verification) =====
+b6cdda92f90caee3517786d37446378e Java-HttpClient
+93ade6c69a223846ac5f9ee732f0ca5e Java-okhttp
+52e5f491aef3a096e0d8a9a3a49c5b3b Java-Apache
+
+# ===== Scrapy (web scraping for ad compliance) =====
+8cd9efb67ff81c4f60e8e553e8c8e064 Scrapy

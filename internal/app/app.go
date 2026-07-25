@@ -38,8 +38,14 @@ func New(configPath string) (http.Handler, *config.Config, error) {
 
 // Default returns a lazily initialized handler for serverless runtimes.
 func Default() (http.Handler, error) {
+	return DefaultWithConfig(configPath())
+}
+
+// DefaultWithConfig returns a lazily initialized handler using the provided
+// config path on the first call.
+func DefaultWithConfig(configPath string) (http.Handler, error) {
 	defaultOnce.Do(func() {
-		defaultHandler, _, defaultErr = New(configPath())
+		defaultHandler, _, defaultErr = New(configPath)
 	})
 	return defaultHandler, defaultErr
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func TestHandlerRestoresRewrittenPath(t *testing.T) {
-	req := httptest.NewRequest(http.MethodGet, "/api/index.go?__cloak_path=/healthz", nil)
+	req := httptest.NewRequest(http.MethodGet, "https://example.com/api/index.go?__cloak_path=/healthz", nil)
 	rec := httptest.NewRecorder()
 
 	Handler(rec, req)

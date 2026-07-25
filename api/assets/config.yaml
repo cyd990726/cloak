@@ -1,0 +1,317 @@
+server:
+  host: "0.0.0.0"
+  port: 8080
+  secret_key: "change-me-to-a-random-string"
+  country_db: "data/BIT4BF5.tmp"
+
+scoring:
+  threshold: 120
+  challenge_min: 80
+
+routes:
+  - path: "/app"
+    type: "app"
+    template: "templates/app.gohtml"
+    target_countries: ["TH", "ID", "PH"]
+    data:
+      title: "Our App - Download Now"
+      brand_name: "AppName"
+      year: 2026
+      hero_title: "Your Daily Companion App"
+      hero_desc: "Discover a smarter way to manage your daily tasks."
+      app_store_url: "#"
+      google_play_url: "#"
+      accent_color: "#1a73e8"
+      download_title: "Available on All Platforms"
+      privacy_url: "/privacy"
+      terms_url: "/terms"
+      features:
+        - icon: "\u26a1"
+          title: "Fast Performance"
+          desc: "Optimized for speed."
+        - icon: "\U0001f512"
+          title: "Secure & Private"
+          desc: "End-to-end encryption."
+        - icon: "\u2600"
+          title: "Beautiful Design"
+          desc: "Clean intuitive interface."
+
+  - path: "/shop"
+    type: "site"
+    template: "templates/site.gohtml"
+    data:
+      title: "Quality Products for Everyday Life"
+      brand_name: "ShopName"
+      year: 2026
+      topbar_text: "Free shipping on orders over $50"
+      hero_title: "Quality Products for Everyday Life"
+      hero_desc: "We curate the best products."
+      accent_color: "#e65100"
+      cta_text: "Add to Cart"
+      trust_title: "Trusted By Thousands"
+      trust_badges:
+        - "Secure Checkout"
+        - "30-Day Returns"
+        - "24/7 Support"
+      privacy_url: "/privacy"
+      terms_url: "/terms"
+      returns_url: "/returns"
+      products:
+        - price: "$29.99"
+          title: "Premium Everyday Item"
+          desc: "Quality materials, lasting comfort."
+        - price: "$49.99"
+          title: "Smart Home Gadget"
+          desc: "Easy setup, intuitive controls."
+        - price: "$19.99"
+          title: "Essential Accessories"
+          desc: "Everything in one pack."
+
+  - path: "/chat"
+    type: "im"
+    template: "templates/im.gohtml"
+    data:
+      title: "Chat with Us"
+      brand_name: "Support Team"
+      display_name: "Support Team"
+      bio: "We're here to help! Reply within minutes."
+      banner_color1: "#075e54"
+      banner_color2: "#128c7e"
+      cta_color: "#25d366"
+      cta_text: "Start Chat"
+      chat_url: "#"
+      footer_text: "End-to-end encrypted"
+      privacy_url: "/privacy"
+      properties:
+        - label: "Channel"
+          value: "WhatsApp Business"
+        - label: "Hours"
+          value: "Mon - Fri 9AM-6PM"
+        - label: "Language"
+          value: "English, Chinese"
+
+  - path: "/contact"
+    type: "form"
+    template: "templates/form.gohtml"
+    data:
+      title: "Contact Us"
+      brand_name: "Company"
+      year: 2026
+      accent_color: "#4361ee"
+      form_title: "Get in Touch"
+      form_desc: "Fill out the form, we'll reply within 24 hours."
+      submit_text: "Send Message"
+      success_title: "Message Sent!"
+      success_msg: "Thank you. We'll respond shortly."
+      privacy_url: "/privacy"
+      terms_url: "/terms"
+      fields:
+        - type: "row"
+          items:
+            - id: "first"
+              label: "First Name"
+              input_type: "text"
+              placeholder: "John"
+              required: true
+            - id: "last"
+              label: "Last Name"
+              input_type: "text"
+              placeholder: "Doe"
+              required: true
+        - id: "email"
+          type: "input"
+          label: "Email Address"
+          input_type: "email"
+          placeholder: "you@example.com"
+          required: true
+        - id: "topic"
+          type: "select"
+          label: "Topic"
+          options:
+            - value: ""
+              text: "Select a topic"
+            - value: "general"
+              text: "General Inquiry"
+            - value: "support"
+              text: "Technical Support"
+            - value: "billing"
+              text: "Billing Question"
+            - value: "partnership"
+              text: "Partnership"
+        - id: "message"
+          type: "textarea"
+          label: "Message"
+          placeholder: "Tell us how we can help..."
+          helper: "Please include relevant details"
+          required: true
+
+rules:
+  asn:
+    enabled: true
+    weight: 50
+    databases:
+      - "data/GeoLite2-ASN.mmdb"
+    patterns:
+      - "Google"
+      - "Facebook"
+      - "Amazon"
+      - "DigitalOcean"
+      - "Microsoft Corporation"
+      - "Hetzner"
+      - "OVH"
+      - "Alibaba"
+      - "Tencent"
+      - "Linode"
+      - "Vultr"
+      - "Oracle Corporation"
+      - "Akamai Technologies"
+      - "Cloudflare"
+      - "Fastly"
+    ip_blacklist: []
+    ip_whitelist: []
+    blacklist_file: "data/blacklist.txt"
+    whitelist_file: "data/whitelist.txt"
+
+  ua:
+    enabled: true
+    weight: 12
+    patterns:
+      - "AdsBot-Google"
+      - "Mediapartners-Google"
+      - "APIs-Google"
+      - "facebookexternalhit"
+      - "facebookcatalog"
+      - "PetalBot"
+      - "Twitterbot"
+      - "LinkedInBot"
+      - "bingbot"
+      - "DuckDuckBot"
+      - "YandexBot"
+      - "Baiduspider"
+      - "Slurp"
+      - "msnbot"
+      - "ia_archiver"
+      - "Yeti"
+      - "ScoutJet"
+      - "BLEXBot"
+      - "AhrefsBot"
+      - "SemrushBot"
+      - "DotBot"
+      - "MegaIndex"
+      - "ZoominfoBot"
+      - "XoviBot"
+      - "serpstatbot"
+      - "CheckMarkNetwork"
+      - "Outbrain"
+      - "Taboola"
+
+  header:
+    enabled: true
+    weight: 15
+    checks:
+      missing_accept_language: 5
+      missing_accept: 3
+      missing_accept_encoding: 2
+      missing_sec_fetch: 8
+      connection_close: 3
+      header_order_mismatch: 10
+
+  rdns:
+    enabled: true
+    weight: 40
+    cache_ttl: 300
+    patterns:
+      - "google.com"
+      - "googlebot.com"
+      - "doubleclick.net"
+      - "facebook.com"
+      - "tfbnw.net"
+      - "amazonaws.com"
+      - "compute.amazonaws.com"
+      - "compute-1.amazonaws.com"
+      - "microsoft.com"
+      - "azure.com"
+      - "alibaba-inc.com"
+      - "alibabacloud.com"
+
+  ja3:
+    enabled: true
+    weight: 35
+    hashes: {}
+
+  device:
+    enabled: true
+    weight: 30
+
+  ip_type:
+    enabled: true
+    weight: 30
+    cloud_keywords:
+      - "cloud"
+      - "hosting"
+      - "datacenter"
+      - "vps"
+      - "dedicated"
+      - "compute"
+      - "infrastructure"
+      - "colocation"
+      - "cdn"
+
+  honeypot:
+    enabled: true
+    weight: 60
+    inject_links: true
+
+  js_fp:
+    enabled: true
+    weight: 20
+
+  # Reviewer detection rule — identifies ad platform HUMAN reviewers
+  # This is NOT a bot detection rule. It detects real people using real browsers
+  # who review ads for Google/Meta/TikTok etc.
+  #
+  # Detection signals (all server-side, no JS required):
+  #   - ASN: IP belongs to ad platform (Google/Meta/Microsoft/TikTok)
+  #   - CIDR: IP in known reviewer IP ranges
+  #   - No UTM: didn't arrive via ad click (no utm_source/gclid/fbclid)
+  #   - No Referrer: didn't come from an ad platform domain
+  #   - Compliance path: visiting /privacy, /terms, /legal pages
+  #   - Timezone: client timezone doesn't match target market
+  #
+  # When confidence >= threshold, returns ActionReview (independent from bot scoring)
+  # Data files are hot-reloadable via ReloadData()
+  reviewer:
+    enabled: true
+    weight: 60
+    threshold: 50             # min confidence (0-100) to trigger ActionReview
+    asn_file: "data/reviewer_asns.txt"
+    ip_file: "data/reviewer_ips.txt"
+    ja3_file: "data/reviewer_ja3_hashes.txt"  # kept for future use
+    target_tz: -5             # target market timezone offset (e.g. -5=EST, 1=CET, 8=Philippines)
+    asn_score: 30             # confidence: IP from ad platform ASN
+    ip_score: 40              # confidence: IP in reviewer CIDR range
+    no_utm_score: 8           # confidence: no UTM/ad tracking params
+    no_ref_score: 6           # confidence: no ad referrer
+    path_score: 25            # confidence: visiting compliance pages
+    tz_score: 10              # confidence: timezone mismatch
+
+  # Behavior analysis rule — detects reviewer browsing patterns
+  # Uses ONLY server-side signals (session path history, no JS beacon needed)
+  #
+  # Detection signals:
+  #   - Privacy/terms page visit (strongest signal — real users never visit these)
+  #   - Multiple route visits in one session
+  #   - Compliance chain: landing page → privacy → terms
+  #   - Rapid multi-page browsing
+  #   - No CTA path visited
+  #
+  # Also implements ReviewerChecker to contribute to ActionReview
+  behavior:
+    enabled: true
+    weight: 50
+    threshold: 40             # min confidence to contribute to reviewer detection
+    privacy_visit_score: 30   # confidence: visited privacy/terms page
+    multi_route_score: 15     # confidence: 3+ routes in session
+    rapid_multi_score: 10     # confidence: 3+ pages in <5s
+    compliance_chain_score: 20 # confidence: landing → privacy → terms chain
+    no_cta_score: 8           # confidence: no CTA path visited

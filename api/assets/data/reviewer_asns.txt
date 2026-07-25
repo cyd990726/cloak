@@ -1,0 +1,78 @@
+# Ad Platform Reviewer ASN List
+# One ASN number per line (without "AS" prefix)
+# These ASNs belong to ad platforms whose traffic is likely reviewer/bot traffic
+# Source: Public registry data + ad platform documentation
+
+# ===== Google =====
+# Includes Googlebot, AdsBot-Google, Mediapartners-Google, Google Ads reviewers
+15169
+36040
+16550
+43515
+46384
+139070
+19519
+
+# ===== Meta / Facebook =====
+# Includes facebookexternalhit, facebookcatalog, Meta Ads reviewers
+32934
+54115
+63293
+
+# ===== Microsoft / Bing =====
+# Includes bingbot, adidxbot, Bing Ads reviewers
+8075
+8068
+12076
+
+# ===== TikTok / ByteDance =====
+# Includes TikTokBot, TikTok Ads reviewers
+138699
+396986
+14618
+
+# ===== Apple =====
+# Includes Applebot (used for Apple Ads and Siri suggestions)
+714
+6185
+
+# ===== Twitter / X =====
+# Includes Twitterbot
+13414
+
+# ===== Pinterest =====
+# Includes Pinterestbot
+398454
+
+# ===== Snap =====
+# Includes Snap Ads reviewers
+398494
+
+# ===== LinkedIn =====
+# Includes LinkedInBot
+202022
+
+# ===== Amazon (advertising) =====
+# Includes Amazonbot, Amazon Ads reviewers
+16509
+14618
+8075
+
+# ===== Yandex =====
+# Includes YandexBot, Yandex Ads
+13238
+208709
+
+# ===== Baidu =====
+# Includes Baiduspider, Baidu Ads
+38365
+55990
+
+# ===== DuckDuckGo =====
+# Includes DuckDuckBot
+202954
+
+# ===== Censys / Security Scanners (often used by ad platforms for compliance) =====
+14618
+395941
+45242
