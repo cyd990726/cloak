@@ -32,5 +32,5 @@ curl https://<your-vercel-domain>/app
 ## Serverless Notes
 
 - Vercel terminates HTTPS at the platform edge. Do not set `CLOAK_HTTPS_PORT`, `CLOAK_CERT_FILE`, or `CLOAK_KEY_FILE`.
-- The custom JA3 listener in `main.go` is only available in standalone/container mode, not in Vercel Serverless.
+- The custom JA3 listener in `cmd/cloak/main.go` is only available in standalone/container mode, not in Vercel Serverless.
 - In-memory session behavior can reset across cold starts or scale-out. Basic routing, challenge cookies, template pages, and stateless request scoring still work.
