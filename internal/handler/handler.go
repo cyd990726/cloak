@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -80,6 +81,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.URL.Path == "/admin" || r.URL.Path == "/admin/" {
+		if !debugAllowed(r) {
+			http.NotFound(w, r)
+			return
+		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write([]byte(admin.PanelHTML))
 		return
@@ -140,6 +145,10 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		sid[:8], ses.requests, verdict.Details)
 
 	if r.URL.Path == "/judge" || strings.HasSuffix(r.URL.Path, "/judge") || r.Header.Get("X-Debug") == "true" {
+		if !debugAllowed(r) {
+			http.NotFound(w, r)
+			return
+		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"verdict": verdict,
@@ -389,4 +398,26 @@ func getClientIP(r *http.Request) net.IP {
 	}
 	host, _, _ := net.SplitHostPort(r.RemoteAddr)
 	return net.ParseIP(host)
+}
+
+func debugAllowed(r *http.Request) bool {
+	token := strings.TrimSpace(os.Getenv("CLOAK_ADMIN_TOKEN"))
+	if token == "" {
+		return false
+	}
+	if subtleConstantTimeEqual(r.Header.Get("X-Admin-Token"), token) {
+		return true
+	}
+	return subtleConstantTimeEqual(r.URL.Query().Get("debug_token"), token)
+}
+
+func subtleConstantTimeEqual(a, b string) bool {
+	if len(a) != len(b) || a == "" {
+		return false
+	}
+	var diff byte
+	for i := 0; i < len(a); i++ {
+		diff |= a[i] ^ b[i]
+	}
+	return diff == 0
 }

@@ -37,6 +37,10 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	restoreRewrittenPath(r)
 
 	if r.URL.Path == "/__vercel_debug" {
+		if !debugAllowed(r) {
+			http.NotFound(w, r)
+			return
+		}
 		serveDebug(w)
 		return
 	}
@@ -151,4 +155,26 @@ func restoreRewrittenPath(r *http.Request) {
 	q.Del("__cloak_path")
 	r.URL.RawQuery = q.Encode()
 	r.URL.Path = path
+}
+
+func debugAllowed(r *http.Request) bool {
+	token := strings.TrimSpace(os.Getenv("CLOAK_ADMIN_TOKEN"))
+	if token == "" {
+		return false
+	}
+	if constantTimeEqual(r.Header.Get("X-Admin-Token"), token) {
+		return true
+	}
+	return constantTimeEqual(r.URL.Query().Get("debug_token"), token)
+}
+
+func constantTimeEqual(a, b string) bool {
+	if len(a) != len(b) || a == "" {
+		return false
+	}
+	var diff byte
+	for i := 0; i < len(a); i++ {
+		diff |= a[i] ^ b[i]
+	}
+	return diff == 0
 }

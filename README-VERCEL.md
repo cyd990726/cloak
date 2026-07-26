@@ -12,6 +12,7 @@ This project can run on Vercel through the Go Serverless Function in `api/index.
 ```text
 CLOAK_SECRET_KEY=<random hex string>
 CLOAK_COUNTRY_DB=data/BIT4BF5.tmp
+CLOAK_ADMIN_TOKEN=<random admin debug token>
 ```
 
 Generate a local secret value with:
@@ -21,6 +22,26 @@ openssl rand -hex 32
 ```
 
 `vercel.json` rewrites all routes to the Go function while preserving the original path, so existing routes such as `/healthz`, `/app`, `/shop`, `/chat`, `/contact`, `/validate`, and `/_beh` continue to work.
+
+`CLOAK_ADMIN_TOKEN` protects `/admin`, `/judge`, and `/__vercel_debug`. To use those debug endpoints, send either:
+
+```text
+X-Admin-Token: <token>
+```
+
+or append:
+
+```text
+?debug_token=<token>
+```
+
+## Sync Embedded Assets
+
+Vercel uses embedded files from `api/assets`. After changing root `config.yaml`, `templates/`, or required `data/` files, sync them with:
+
+```bash
+./scripts/sync_vercel_assets.sh
+```
 
 ## Verify
 
