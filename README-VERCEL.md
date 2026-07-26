@@ -13,6 +13,7 @@ This project can run on Vercel through the Go Serverless Function in `api/index.
 CLOAK_SECRET_KEY=<random hex string>
 CLOAK_COUNTRY_DB=data/BIT4BF5.tmp
 CLOAK_ADMIN_TOKEN=<random admin debug token>
+CLOAK_API_TOKEN=<random server-to-server token>
 ```
 
 Generate a local secret value with:
@@ -33,6 +34,26 @@ or append:
 
 ```text
 ?debug_token=<token>
+```
+
+`CLOAK_API_TOKEN` protects the JSON judgment API:
+
+```text
+POST /api/judge
+X-Cloak-Token: <token>
+```
+
+The judgment API returns an A/B audience result:
+
+```json
+{
+  "audience": "A",
+  "allow_return": false,
+  "action": "review",
+  "score": 50,
+  "total_max": 100,
+  "reasons": ["reviewer: no UTM params"]
+}
 ```
 
 ## Sync Embedded Assets

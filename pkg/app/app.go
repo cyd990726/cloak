@@ -1,7 +1,9 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -10,17 +12,52 @@ import (
 	"cloak/internal/cloaker"
 	"cloak/internal/config"
 	"cloak/internal/handler"
+	"cloak/internal/rule"
 )
 
 var (
 	defaultOnce    sync.Once
 	defaultHandler http.Handler
+	defaultService *Service
 	defaultErr     error
 )
+
+type Service struct {
+	handler http.Handler
+	cloaker *cloaker.Cloaker
+}
+
+type JudgePayload struct {
+	IP        string            `json:"ip"`
+	Method    string            `json:"method"`
+	Path      string            `json:"path"`
+	Query     map[string]string `json:"query"`
+	Headers   map[string]string `json:"headers"`
+	Country   string            `json:"country"`
+	TZOffset  int               `json:"tz_offset"`
+	Timestamp int64             `json:"timestamp"`
+}
+
+type JudgeResult struct {
+	Audience    string   `json:"audience"`
+	AllowReturn bool     `json:"allow_return"`
+	Action      string   `json:"action"`
+	Score       int      `json:"score"`
+	Total       int      `json:"total_max"`
+	Reasons     []string `json:"reasons"`
+}
 
 // New builds the HTTP handler used by both the standalone server and
 // serverless adapters.
 func New(configPath string) (http.Handler, *config.Config, error) {
+	service, cfg, err := NewService(configPath)
+	if err != nil {
+		return nil, nil, err
+	}
+	return service.handler, cfg, nil
+}
+
+func NewService(configPath string) (*Service, *config.Config, error) {
 	configPath = resolveConfigPath(configPath)
 	cfg, err := config.Load(configPath)
 	if err != nil {
@@ -33,7 +70,10 @@ func New(configPath string) (http.Handler, *config.Config, error) {
 		return nil, nil, err
 	}
 
-	return handler.NewHandler(c), cfg, nil
+	return &Service{
+		handler: handler.NewHandler(c),
+		cloaker: c,
+	}, cfg, nil
 }
 
 // Default returns a lazily initialized handler for serverless runtimes.
@@ -45,9 +85,101 @@ func Default() (http.Handler, error) {
 // config path on the first call.
 func DefaultWithConfig(configPath string) (http.Handler, error) {
 	defaultOnce.Do(func() {
-		defaultHandler, _, defaultErr = New(configPath)
+		defaultService, _, defaultErr = NewService(configPath)
+		if defaultService != nil {
+			defaultHandler = defaultService.handler
+		}
 	})
 	return defaultHandler, defaultErr
+}
+
+func DefaultServiceWithConfig(configPath string) (*Service, error) {
+	defaultOnce.Do(func() {
+		defaultService, _, defaultErr = NewService(configPath)
+		if defaultService != nil {
+			defaultHandler = defaultService.handler
+		}
+	})
+	return defaultService, defaultErr
+}
+
+func (s *Service) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	s.handler.ServeHTTP(w, r)
+}
+
+func (s *Service) Judge(payload JudgePayload) (JudgeResult, error) {
+	req, err := payload.HTTPRequest()
+	if err != nil {
+		return JudgeResult{}, err
+	}
+	verdict := s.cloaker.Judge(req)
+	return judgeResultFromVerdict(verdict), nil
+}
+
+func (p JudgePayload) HTTPRequest() (*http.Request, error) {
+	method := strings.ToUpper(strings.TrimSpace(p.Method))
+	if method == "" {
+		method = http.MethodGet
+	}
+	path := strings.TrimSpace(p.Path)
+	if path == "" {
+		path = "/"
+	}
+	if !strings.HasPrefix(path, "/") {
+		path = "/" + path
+	}
+
+	values := url.Values{}
+	for key, value := range p.Query {
+		if strings.TrimSpace(key) == "" {
+			continue
+		}
+		values.Set(key, value)
+	}
+	if encoded := values.Encode(); encoded != "" {
+		path = path + "?" + encoded
+	}
+
+	req, err := http.NewRequest(method, "https://cloak-judge.local"+path, nil)
+	if err != nil {
+		return nil, err
+	}
+	for key, value := range p.Headers {
+		if strings.TrimSpace(key) == "" || value == "" {
+			continue
+		}
+		req.Header.Set(key, value)
+	}
+	if p.IP != "" {
+		req.Header.Set("X-Real-IP", p.IP)
+		req.Header.Set("X-Forwarded-For", p.IP)
+		req.RemoteAddr = p.IP + ":0"
+	}
+	if p.Country != "" {
+		req.Header.Set("X-Visitor-Country", strings.ToUpper(strings.TrimSpace(p.Country)))
+	}
+	if p.TZOffset != 0 {
+		req.Header.Set("X-TZ-Offset", fmt.Sprintf("%d", p.TZOffset))
+	}
+	return req, nil
+}
+
+func judgeResultFromVerdict(verdict rule.Verdict) JudgeResult {
+	action := verdict.Action.String()
+	audience := "B"
+	allowReturn := true
+	if verdict.Action == rule.ActionCloak || verdict.Action == rule.ActionReview || verdict.Action == rule.ActionChallenge {
+		audience = "A"
+		allowReturn = false
+	}
+	return JudgeResult{
+		Audience:    audience,
+		AllowReturn: allowReturn,
+		Action:      action,
+		Score:       verdict.Score,
+		Total:       verdict.Total,
+		Reasons:     verdict.Details,
+	}
 }
 
 func configPath() string {

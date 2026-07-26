@@ -45,6 +45,11 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.URL.Path == "/api/judge" && r.Method == http.MethodPost {
+		serveJudge(w, r)
+		return
+	}
+
 	configPath, err := embeddedConfigPath()
 	if err != nil {
 		log.Printf("failed to prepare embedded assets: %v", err)
@@ -60,6 +65,40 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.ServeHTTP(w, r)
+}
+
+func serveJudge(w http.ResponseWriter, r *http.Request) {
+	if !apiAllowed(r) {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var payload app.JudgePayload
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 64*1024)).Decode(&payload); err != nil {
+		http.Error(w, "bad json", http.StatusBadRequest)
+		return
+	}
+
+	configPath, err := embeddedConfigPath()
+	if err != nil {
+		http.Error(w, fmt.Sprintf("failed to prepare embedded assets: %v", err), http.StatusServiceUnavailable)
+		return
+	}
+
+	service, err := app.DefaultServiceWithConfig(configPath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("failed to initialize app: %v", err), http.StatusServiceUnavailable)
+		return
+	}
+
+	response, err := service.Judge(payload)
+	if err != nil {
+		http.Error(w, "bad request payload", http.StatusBadRequest)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 func serveDebug(w http.ResponseWriter) {
@@ -166,6 +205,14 @@ func debugAllowed(r *http.Request) bool {
 		return true
 	}
 	return constantTimeEqual(r.URL.Query().Get("debug_token"), token)
+}
+
+func apiAllowed(r *http.Request) bool {
+	token := strings.TrimSpace(os.Getenv("CLOAK_API_TOKEN"))
+	if token == "" {
+		return false
+	}
+	return constantTimeEqual(r.Header.Get("X-Cloak-Token"), token)
 }
 
 func constantTimeEqual(a, b string) bool {

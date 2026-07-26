@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -43,5 +44,36 @@ func TestDebugEndpointAcceptsToken(t *testing.T) {
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected status 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestJudgeRequiresToken(t *testing.T) {
+	t.Setenv("CLOAK_API_TOKEN", "")
+
+	req := httptest.NewRequest(http.MethodPost, "https://example.com/api/judge", bytes.NewBufferString(`{}`))
+	rec := httptest.NewRecorder()
+
+	Handler(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("expected status 401, got %d: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestJudgeReturnsAudience(t *testing.T) {
+	t.Setenv("CLOAK_API_TOKEN", "test-token")
+
+	body := `{"ip":"8.8.8.8","method":"GET","path":"/l/demo","headers":{"user-agent":"Mozilla/5.0 Chrome/120.0","accept":"text/html","accept-language":"en-US","accept-encoding":"gzip","sec-fetch-site":"none","sec-fetch-mode":"navigate","sec-fetch-dest":"document"},"query":{"gclid":"abc"}}`
+	req := httptest.NewRequest(http.MethodPost, "https://example.com/api/judge", bytes.NewBufferString(body))
+	req.Header.Set("X-Cloak-Token", "test-token")
+	rec := httptest.NewRecorder()
+
+	Handler(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if got := rec.Body.String(); !bytes.Contains([]byte(got), []byte(`"audience"`)) {
+		t.Fatalf("expected audience in body, got %s", got)
 	}
 }
