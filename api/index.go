@@ -2,11 +2,14 @@ package handler
 
 import (
 	"embed"
+	"encoding/json"
+	"fmt"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"sync"
 
@@ -24,22 +27,72 @@ var (
 
 // Handler is the Vercel Serverless Function entrypoint.
 func Handler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			log.Printf("panic in Vercel function: %v\n%s", recovered, debug.Stack())
+			http.Error(w, fmt.Sprintf("panic: %v", recovered), http.StatusInternalServerError)
+		}
+	}()
+
+	restoreRewrittenPath(r)
+
+	if r.URL.Path == "/__vercel_debug" {
+		serveDebug(w)
+		return
+	}
+
 	configPath, err := embeddedConfigPath()
 	if err != nil {
 		log.Printf("failed to prepare embedded assets: %v", err)
-		http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+		http.Error(w, fmt.Sprintf("failed to prepare embedded assets: %v", err), http.StatusServiceUnavailable)
 		return
 	}
 
 	h, err := app.DefaultWithConfig(configPath)
 	if err != nil {
 		log.Printf("failed to initialize app: %v", err)
-		http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+		http.Error(w, fmt.Sprintf("failed to initialize app: %v", err), http.StatusServiceUnavailable)
 		return
 	}
 
-	restoreRewrittenPath(r)
 	h.ServeHTTP(w, r)
+}
+
+func serveDebug(w http.ResponseWriter) {
+	result := map[string]interface{}{
+		"function": "ok",
+	}
+
+	entries, err := fs.Glob(assets, "assets/**")
+	if err != nil {
+		result["assetGlobError"] = err.Error()
+	} else {
+		result["assetCount"] = len(entries)
+	}
+
+	configPath, err := embeddedConfigPath()
+	if err != nil {
+		result["embeddedConfigError"] = err.Error()
+	} else {
+		result["embeddedConfigPath"] = configPath
+		if stat, err := os.Stat(configPath); err != nil {
+			result["embeddedConfigStatError"] = err.Error()
+		} else {
+			result["embeddedConfigSize"] = stat.Size()
+		}
+	}
+
+	if configPath != "" {
+		if _, err := app.DefaultWithConfig(configPath); err != nil {
+			result["appError"] = err.Error()
+		} else {
+			result["app"] = "ok"
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	_ = json.NewEncoder(w).Encode(result)
 }
 
 func embeddedConfigPath() (string, error) {
