@@ -14,8 +14,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"cloak/internal/app"
 	"cloak/internal/ja3"
+	"cloak/pkg/app"
 )
 
 func main() {

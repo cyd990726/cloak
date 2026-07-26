@@ -13,7 +13,7 @@ import (
 	"strings"
 	"sync"
 
-	"cloak/internal/app"
+	"cloak/pkg/app"
 )
 
 //go:embed assets
