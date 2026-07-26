@@ -2,6 +2,10 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/ping.go",
+      "destination": "api/ping.go"
+    },
+    {
       "source": "/(.*)",
       "destination": "api/index.go?__cloak_path=/$1"
     }
