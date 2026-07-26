@@ -2,8 +2,8 @@
   "version": 2,
   "rewrites": [
     {
-      "source": "/api/ping.go",
-      "destination": "api/ping.go"
+      "source": "/api/ping",
+      "destination": "api/ping/index.go"
     },
     {
       "source": "/(.*)",
